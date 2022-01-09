@@ -53,7 +53,11 @@ struct {
 /////////////////////////////////////////////
 //           END RemoteXY include          //
 /////////////////////////////////////////////
-
+#define echoPin 4 // attach pin D2 Arduino to pin Echo of HC-SR04
+#define trigPin 5 //attach pin D3 Arduino to pin Trig of HC-SR04
+// defines variables
+long duration; // variable for the duration of sound wave travel
+int distance; // variable for the distance measurement
 int rightMotorPwmPin;
 int rightMotorDirectionPin;
 int leftMotorPwmPin;
@@ -67,6 +71,7 @@ void setup()
 {
   RemoteXY_Init (); 
   motorsInit (rightMotorPwmPin, rightMotorDirectionPin, leftMotorPwmPin, leftMotorDirectionPin);
+  ultrasonicInit ();
   Serial.begin(9600);
   
   // TODO you setup code
@@ -76,25 +81,10 @@ void setup()
 void loop() 
 { 
   RemoteXY_Handler ();
-  if ( -10 < xVal < 10) {
-    rightMotorPower = abs(yVal);
-    leftMotorPower = abs(yVal);
-    } else if (xVal >= 10) {
-    rightMotorPower = abs(yVal/2);
-    leftMotorPower = abs(yVal);
-    } else if (xVal <= -10) {
-    rightMotorPower = abs(yVal);
-    leftMotorPower = abs(yVal/2); 
-        } 
-    if (yVal > 0) {
-      digitalWrite (rightMotorDirectionPin, 1);
-      digitalWrite (leftMotorDirectionPin, 1);
-      } else if (yVal < 0) {
-        digitalWrite (rightMotorDirectionPin, -1);
-        digitalWrite (leftMotorDirectionPin, -1);
-        }
-      map(rightMotorPower, 0, 100, 0, 255);
-      map(leftMotorPower, 0, 100, 0, 255);
+  updatemotorPower();            //Finds the right values of power to the right and the left motors
+  updateDirection ();            //Finds the right Direction for each motor
+      map(rightMotorPower, 0, 100, 0, 255);      //Make the values found above prportional
+      map(leftMotorPower, 0, 100, 0, 255);       //Make the values found above prportional
        analogWrite (rightMotorPwmPin, rightMotorPower);
        analogWrite (leftMotorPwmPin, leftMotorPower);
   Serial.println (RemoteXY.joystick_1_x , RemoteXY.joystick_1_y);
@@ -102,7 +92,7 @@ void loop()
   // TODO you loop code
   // use the RemoteXY structure for data transfer
   // do not call delay() 
-
+  //TODO why cant I call delay ()? how can I fix this?
 
 }
 
@@ -112,3 +102,50 @@ void motorsInit (int RightMotorPwmPin, int RightMotorDirectionPin, int LeftMotor
   pinMode ( LeftMotorPwmPin, OUTPUT);
   pinMode ( LeftMotorDirectionPin, OUTPUT);
   }
+  void updatemotorPower (){
+     if ( -10 < xVal < 10) {
+    rightMotorPower = abs(yVal);
+    leftMotorPower = abs(yVal);
+    } else if (xVal >= 10) {
+    rightMotorPower = abs(yVal/2);
+    leftMotorPower = abs(yVal);
+    } else if (xVal <= -10) {
+    rightMotorPower = abs(yVal);
+    leftMotorPower = abs(yVal/2); 
+        } 
+    }
+    void updateDirection (){
+      if (yVal > 0) {
+      digitalWrite (rightMotorDirectionPin, 1);
+      digitalWrite (leftMotorDirectionPin, 1);
+      } else if (yVal < 0) {
+        digitalWrite (rightMotorDirectionPin, -1);
+        digitalWrite (leftMotorDirectionPin, -1);
+        }
+      }
+      
+
+
+
+void ultrasonicInit (){
+  pinMode(trigPin, OUTPUT); // Sets the trigPin as an OUTPUT
+  pinMode(echoPin, INPUT); // Sets the echoPin as an INPUT
+  Serial.println("Ultrasonic initialize");
+}
+double ultrasonicValue() {
+  // Clears the trigPin condition
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  // Sets the trigPin HIGH (ACTIVE) for 10 microseconds
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  duration = pulseIn(echoPin, HIGH);
+  // Calculating the distance
+  distance = duration * 0.034 / 2; // Speed of sound wave divided by 2 (go and back)
+  // Displays the distance on the Serial Monitor
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+}
