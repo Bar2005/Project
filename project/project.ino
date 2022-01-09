@@ -58,6 +58,8 @@ int rightMotorPwmPin;
 int rightMotorDirectionPin;
 int leftMotorPwmPin;
 int leftMotorDirectionPin;
+int rightMotorPower;
+int leftMotorPower;
 double xVal = RemoteXY.joystick_1_x;
 double yVal = RemoteXY.joystick_1_y;
 
@@ -74,7 +76,27 @@ void setup()
 void loop() 
 { 
   RemoteXY_Handler ();
-  
+  if ( -10 < xVal < 10) {
+    rightMotorPower = abs(yVal);
+    leftMotorPower = abs(yVal);
+    } else if (xVal >= 10) {
+    rightMotorPower = abs(yVal/2);
+    leftMotorPower = abs(yVal);
+    } else if (xVal <= -10) {
+    rightMotorPower = abs(yVal);
+    leftMotorPower = abs(yVal/2); 
+        } 
+    if (yVal > 0) {
+      digitalWrite (rightMotorDirectionPin, 1);
+      digitalWrite (leftMotorDirectionPin, 1);
+      } else if (yVal < 0) {
+        digitalWrite (rightMotorDirectionPin, -1);
+        digitalWrite (leftMotorDirectionPin, -1);
+        }
+      map(rightMotorPower, 0, 100, 0, 255);
+      map(leftMotorPower, 0, 100, 0, 255);
+       analogWrite (rightMotorPwmPin, rightMotorPower);
+       analogWrite (leftMotorPwmPin, leftMotorPower);
   Serial.println (RemoteXY.joystick_1_x , RemoteXY.joystick_1_y);
   
   // TODO you loop code
@@ -85,8 +107,8 @@ void loop()
 }
 
 void motorsInit (int RightMotorPwmPin, int RightMotorDirectionPin, int LeftMotorPwmPin, int LeftMotorDirectionPin){
-  pinMode ( Motor_1_PwmPin, OUTPUT);
-  pinMode ( Motor_1_DirectionPin, OUTPUT);
-  pinMode ( Motor_2_PwmPin, OUTPUT);
-  pinMode ( Motor_2_DirectionPin, OUTPUT);
+  pinMode ( RightMotorPwmPin, OUTPUT);
+  pinMode ( RightMotorDirectionPin, OUTPUT);
+  pinMode ( LeftMotorPwmPin, OUTPUT);
+  pinMode ( LeftMotorDirectionPin, OUTPUT);
   }
