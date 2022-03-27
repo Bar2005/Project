@@ -26,8 +26,8 @@
 #include <RemoteXY.h>
 
 // RemoteXY connection settings 
-#define REMOTEXY_SERIAL_RX 3
-#define REMOTEXY_SERIAL_TX 2
+#define REMOTEXY_SERIAL_RX 4
+#define REMOTEXY_SERIAL_TX 5
 #define REMOTEXY_SERIAL_SPEED 9600
 
 
@@ -53,19 +53,17 @@ struct {
 /////////////////////////////////////////////
 //           END RemoteXY include          //
 /////////////////////////////////////////////
-int rightMotorPwmPin = 1;
-int rightMotorDirPin = 1;
-int leftMotorPwmPin = 1;
-int leftMotorDirPin = 1;
-int rightMotorPower;
-int leftMotorPower;
+int rightMotorPwmPin = 10;
+int rightMotorDirPin = 11;
+int leftMotorPwmPin =  12;
+int leftMotorDirPin = 13;
+double rightMotorPower;
+double leftMotorPower = 1000;
 
 void setup() 
 {
   RemoteXY_Init (); 
   Serial.begin (9600);
-  pinMode(3,INPUT);
-  pinMode(2,OUTPUT);
   pinMode(rightMotorPwmPin, OUTPUT);
   pinMode(rightMotorDirPin, OUTPUT);
   pinMode(leftMotorPwmPin, OUTPUT);
@@ -78,25 +76,37 @@ void setup()
 void loop() 
 { 
   RemoteXY_Handler ();
-  delay(500);
   int xVal = RemoteXY.joystick_1_x;
   int yVal = RemoteXY.joystick_1_y;
-  if ( -10 < xVal < 10) {
-    rightMotorPower = abs(yVal);
-    leftMotorPower = abs(yVal);
-    } else if (xVal >= 10) {
-    rightMotorPower = abs(yVal/2);
-    leftMotorPower = abs(yVal);
-    } else if (xVal <= -10) {
-    rightMotorPower = abs(yVal);
-    leftMotorPower = abs(yVal/2); 
+  if ( -10 < xVal < 10 && -10 < yVal < 10) {
+    rightMotorPower = 0;
+    leftMotorPower = 0;
+    Serial.println ("b");
+    } 
+    else {
+    rightMotorPower = 1000;
+    leftMotorPower = 1000;
+    Serial.println ("bc");      
+      }
+if (xVal > 10) {
+    rightMotorPower = 1000;
+    leftMotorPower = 1000;
+    Serial.println ("b");
+    }
+if (xVal < -10) {
+    rightMotorPower = 1000;
+    leftMotorPower = 1000; 
+    Serial.println ("c");
         } 
-   if (yVal > 0) {
-      digitalWrite (rightMotorDirectionPin, 1);
-      digitalWrite (leftMotorDirectionPin, 1);
-      } else if (yVal < 0) {
-        digitalWrite (rightMotorDirectionPin, -1);
-        digitalWrite (leftMotorDirectionPin, -1);
+  analogWrite (rightMotorPwmPin, rightMotorPower);
+  analogWrite (leftMotorPwmPin, leftMotorPower);
+  if (yVal > 0) {
+      digitalWrite (rightMotorDirPin, 0);
+      digitalWrite (leftMotorDirPin, 0);
+      }
+if (yVal < 0) {
+        digitalWrite (rightMotorDirPin, 1);
+        digitalWrite (leftMotorDirPin, 1);
         }
   
   
