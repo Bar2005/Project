@@ -58,7 +58,9 @@ int rightMotorDirPin = 11;
 int leftMotorPwmPin =  12;
 int leftMotorDirPin = 13;
 double rightMotorPower;
-double leftMotorPower = 1000;
+double leftMotorPower;
+double turnSpeed = 120;
+double driveStraightSpeed = 200;
 
 void setup() 
 {
@@ -67,53 +69,47 @@ void setup()
   pinMode(rightMotorPwmPin, OUTPUT);
   pinMode(rightMotorDirPin, OUTPUT);
   pinMode(leftMotorPwmPin, OUTPUT);
-  pinMode(leftMotorDirPin, OUTPUT);  
-  
-  // TODO you setup code
-  
+  pinMode(leftMotorDirPin, OUTPUT);
 }
 
 void loop() 
 { 
-  RemoteXY_Handler ();
+  RemoteXY_Handler();
   int xVal = RemoteXY.joystick_1_x;
   int yVal = RemoteXY.joystick_1_y;
   if ( -10 < xVal < 10 && -10 < yVal < 10) {
     rightMotorPower = 0;
     leftMotorPower = 0;
-    Serial.println ("b");
-    } 
-    else {
-    rightMotorPower = 1000;
-    leftMotorPower = 1000;
-    Serial.println ("bc");      
-      }
-if (xVal > 10) {
-    rightMotorPower = 1000;
-    leftMotorPower = 1000;
-    Serial.println ("b");
-    }
-if (xVal < -10) {
-    rightMotorPower = 1000;
-    leftMotorPower = 1000; 
-    Serial.println ("c");
-        } 
+    Serial.println ("stop");
+    } else {
+    rightMotorPower = turnSpeed;
+    leftMotorPower = turnSpeed;
+      } 
+    // deciding whether to stop the car or drive 
+    
+    if (xVal > 10 && yVal > 0) {
+    digitalWrite (leftMotorDirPin, 0);
+    digitalWrite (rightMotorDirPin, 1);
+    Serial.println ("turn right");
+    } else if (xVal < -10 && yVal > 0) { 
+    digitalWrite (rightMotorDirPin, 0);
+    digitalWrite (leftMotorDirPin, 1);
+    Serial.println ("turn left");
+    }  else {
+    rightMotorPower = driveStraightSpeed;
+    leftMotorPower = driveStraightSpeed;
+    }  if (-10 < xVal < 10 && yVal > 10){
+    digitalWrite (leftMotorDirPin, 0);
+    digitalWrite (rightMotorDirPin, 0);
+    Serial.println("forward");  
+    } else if (-10 < xVal < 10 && yVal < -10){
+    digitalWrite (leftMotorDirPin, 1);
+    digitalWrite (rightMotorDirPin, 1);
+    Serial.println("backward");
+      } 
+  // deciding which side every motor needs to move    
   analogWrite (rightMotorPwmPin, rightMotorPower);
   analogWrite (leftMotorPwmPin, leftMotorPower);
-  if (yVal > 0) {
-      digitalWrite (rightMotorDirPin, 0);
-      digitalWrite (leftMotorDirPin, 0);
-      }
-if (yVal < 0) {
-        digitalWrite (rightMotorDirPin, 1);
-        digitalWrite (leftMotorDirPin, 1);
-        }
-  
-  
-  
-  // TODO you loop code
-  // use the RemoteXY structure for data transfer
+  // actually moving the motors
   // do not call delay() 
-
-
 }
