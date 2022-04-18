@@ -65,11 +65,11 @@ double driveStraightSpeed = 200;
 void setup() 
 {
   RemoteXY_Init (); 
+  int motors [4] = {rightMotorPwmPin, rightMotorDirPin, leftMotorPwmPin, leftMotorDirPin};
+  for (int i = 0; i < 5; i++){
+    pinMode (motors[i], OUTPUT);
+    }
   Serial.begin (9600);
-  pinMode(rightMotorPwmPin, OUTPUT);
-  pinMode(rightMotorDirPin, OUTPUT);
-  pinMode(leftMotorPwmPin, OUTPUT);
-  pinMode(leftMotorDirPin, OUTPUT);
 }
 
 void loop() 
@@ -88,28 +88,28 @@ void loop()
     // deciding whether to stop the car or drive 
     
     if (xVal > 10 && yVal > 0) {
-    digitalWrite (leftMotorDirPin, 0);
-    digitalWrite (rightMotorDirPin, 1);
+    digitalWrite (motors[3], 0);
+    digitalWrite (motors[1], 1);
     Serial.println ("turn right");
     } else if (xVal < -10 && yVal > 0) { 
-    digitalWrite (rightMotorDirPin, 0);
-    digitalWrite (leftMotorDirPin, 1);
+    digitalWrite (motors[1], 0);
+    digitalWrite (motors[3], 1);
     Serial.println ("turn left");
     }  else {
     rightMotorPower = driveStraightSpeed;
     leftMotorPower = driveStraightSpeed;
     }  if (-10 < xVal < 10 && yVal > 10){
-    digitalWrite (leftMotorDirPin, 0);
-    digitalWrite (rightMotorDirPin, 0);
+    digitalWrite (motors[3], 0);
+    digitalWrite (motors[1], 0);
     Serial.println("forward");  
     } else if (-10 < xVal < 10 && yVal < -10){
-    digitalWrite (leftMotorDirPin, 1);
-    digitalWrite (rightMotorDirPin, 1);
+    digitalWrite (motors[3], 1);
+    digitalWrite (motors[1], 1);
     Serial.println("backward");
       } 
   // deciding which side every motor needs to move    
-  analogWrite (rightMotorPwmPin, rightMotorPower);
-  analogWrite (leftMotorPwmPin, leftMotorPower);
+  analogWrite (motors[0], rightMotorPower);
+  analogWrite (motors[2], leftMotorPower);
   // actually moving the motors
   // do not call delay() 
 }
