@@ -54,8 +54,8 @@ struct {
 /////////////////////////////////////////////
 
 bool drive = true;
-long durationRight; // variable for the duration of sound wave travel
-long durationLeft; // variable for the duration of sound wave travel
+long durationRight; // variable for the duration of right sound wave travel
+long durationLeft; // variable for the duration of left sound wave travel
 int trigPinRight = 1;
 int echoPinRight = 2;
 int trigPinLeft = 3;
@@ -70,19 +70,21 @@ double turnSpeed = 60;
 double rightDistance;
 double leftDistance;
 int motors [4] = {rightMotorPwmPin, rightMotorDirPin, leftMotorPwmPin, leftMotorDirPin}; // an array includes all the pins that connected to the motors
-int ultrasonic [4] = {echoPinLeft, echoPinRight, trigPinLeft, trigPinRight};
+
 void setup() 
 {
   RemoteXY_Init (); 
   for (int i = 0; i < 5; i++){
     pinMode (motors[i], OUTPUT);
     }
-    pinMode (ultrasonic[0], INPUT);
-    pinMode (ultrasonic[1], INPUT);
-    pinMode (ultrasonic[2], OUTPUT);
-    pinMode (ultrasonic[3], OUTPUT);
+    pinMode (echoPinLeft, INPUT);
+    pinMode (echoPinRight, INPUT);
+    pinMode (trigPinLeft, OUTPUT);
+    pinMode (trigPinRight, OUTPUT);
     digitalWrite (motors[1], 0);
     digitalWrite (motors[3], 0);
+
+    // just initializing
 }
 
 void loop() 
@@ -98,10 +100,12 @@ void loop()
     analogWrite (motors[0], 0);
     analogWrite (motors[2], 0);
         }
+        // either stop or turn in order to be vertical to the wall
       }
-    if (RemoteXY.switch_1){drive = false;}
+    if (RemoteXY.switch_1){drive = false;} // in case something goes wrong, we can always turn off the car from our phone
     }
-
+    analogWrite (motors[0], 0);
+    analogWrite (motors[2], 0);
 }
 void turn (bool directionToMove){
   int currentTime = millis();
