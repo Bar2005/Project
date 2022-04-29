@@ -26,15 +26,15 @@
 #include <RemoteXY.h>
 
 // RemoteXY connection settings 
-#define REMOTEXY_SERIAL_RX 4
-#define REMOTEXY_SERIAL_TX 5
+#define REMOTEXY_SERIAL_RX 2
+#define REMOTEXY_SERIAL_TX 3
 #define REMOTEXY_SERIAL_SPEED 9600
 
 
 // RemoteXY configurate  
 #pragma pack(push, 1)
 uint8_t RemoteXY_CONF[] =   // 27 bytes
-  { 255,1,0,0,0,20,0,16,16,1,2,0,21,40,22,11,2,26,31,31,
+  { 255,1,0,0,0,20,0,16,31,1,2,0,8,34,47,25,2,26,31,31,
   79,78,0,79,70,70,0 };
   
 // this structure defines all the variables and events of your control interface 
@@ -53,7 +53,6 @@ struct {
 //           END RemoteXY include          //
 /////////////////////////////////////////////
 
-bool drive = true;
 long durationRight; // variable for the duration of right sound wave travel
 long durationLeft; // variable for the duration of left sound wave travel
 int trigPinRight = 1;
@@ -66,7 +65,8 @@ int leftMotorPwmPin =  12;
 int leftMotorDirPin = 13;
 double rightMotorPower;
 double leftMotorPower;
-double turnSpeed = 60;
+double turnSpeed = 30;
+double driveStraightSpeed = 40;
 double rightDistance;
 double leftDistance;
 int motors [4] = {rightMotorPwmPin, rightMotorDirPin, leftMotorPwmPin, leftMotorDirPin}; // an array includes all the pins that connected to the motors
@@ -83,6 +83,7 @@ void setup()
     pinMode (trigPinRight, OUTPUT);
     digitalWrite (motors[1], 0);
     digitalWrite (motors[3], 0);
+    Serial.begin (9600);
 
     // just initializing
 }
@@ -90,19 +91,28 @@ void setup()
 void loop() 
 { 
   RemoteXY_Handler ();
-  while (drive){
-    findRightDistance();
-    findLeftDistance();
+  while (RemoteXY.switch_1){ // in case something goes wrong, we can always turn off the car from our phone
+    RemoteXY_Handler ();
+    rightDistance = 90;
+    leftDistance = 80;
+    analogWrite (motors[0], driveStraightSpeed);
+    analogWrite (motors[2], driveStraightSpeed);
     if (rightDistance < 100 || leftDistance < 100){
-      if (rightDistance > leftDistance){ turn (false);}
-      if (rightDistance < leftDistance){ turn (true);}
+      if (rightDistance > leftDistance){ 
+        Serial.println ("left");
+        turn (false);
+        }
+      if (rightDistance < leftDistance){ 
+        Serial.println ("right");
+        turn (true);
+        }
       else {
     analogWrite (motors[0], 0);
     analogWrite (motors[2], 0);
         }
+    Serial.println (RemoteXY.switch_1);    
         // either stop or turn in order to be vertical to the wall
-      }
-    if (RemoteXY.switch_1){drive = false;} // in case something goes wrong, we can always turn off the car from our phone
+      } 
     }
     analogWrite (motors[0], 0);
     analogWrite (motors[2], 0);
@@ -113,12 +123,16 @@ void turn (bool directionToMove){
   analogWrite (motors[2], turnSpeed);
   if (directionToMove){
     while (leftDistance > rightDistance){
+      findRightDistance();
+      findLeftDistance();
       digitalWrite (motors[1], 0);
       digitalWrite (motors[3], 1);
       }
     }
   if (!directionToMove){
     while(leftDistance < rightDistance){
+    findRightDistance();
+    findLeftDistance();
     digitalWrite (motors[1], 1);
     digitalWrite (motors[3], 0);
     }
