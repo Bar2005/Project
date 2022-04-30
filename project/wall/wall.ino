@@ -1,57 +1,4 @@
-/*
-   -- New project --
-   
-   This source code of graphical user interface 
-   has been generated automatically by RemoteXY editor.
-   To compile this code using RemoteXY library 3.1.8 or later version 
-   download by link http://remotexy.com/en/library/
-   To connect using RemoteXY mobile app by link http://remotexy.com/en/download/                   
-     - for ANDROID 4.11.1 or later version;
-     - for iOS 1.9.1 or later version;
-    
-   This source code is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation; either
-   version 2.1 of the License, or (at your option) any later version.    
-*/
 
-//////////////////////////////////////////////
-//        RemoteXY include library          //
-//////////////////////////////////////////////
-
-// RemoteXY select connection mode and include library 
-#define REMOTEXY_MODE__SOFTSERIAL
-#include <SoftwareSerial.h>
-
-#include <RemoteXY.h>
-
-// RemoteXY connection settings 
-#define REMOTEXY_SERIAL_RX 2
-#define REMOTEXY_SERIAL_TX 3
-#define REMOTEXY_SERIAL_SPEED 9600
-
-
-// RemoteXY configurate  
-#pragma pack(push, 1)
-uint8_t RemoteXY_CONF[] =   // 27 bytes
-  { 255,1,0,0,0,20,0,16,31,1,2,0,8,34,47,25,2,26,31,31,
-  79,78,0,79,70,70,0 };
-  
-// this structure defines all the variables and events of your control interface 
-struct {
-
-    // input variables
-  uint8_t switch_1; // =1 if switch ON and =0 if OFF 
-
-    // other variable
-  uint8_t connect_flag;  // =1 if wire connected, else =0 
-
-} RemoteXY;
-#pragma pack(pop)
-
-/////////////////////////////////////////////
-//           END RemoteXY include          //
-/////////////////////////////////////////////
 
 long durationRight; // variable for the duration of right sound wave travel
 long durationLeft; // variable for the duration of left sound wave travel
@@ -61,8 +8,8 @@ int trigPinLeft = 3;
 int echoPinLeft = 4;
 int rightMotorPwmPin = 10;
 int rightMotorDirPin = 11;
-int leftMotorPwmPin =  12;
-int leftMotorDirPin = 13;
+int leftMotorPwmPin =  5;
+int leftMotorDirPin = 6;
 double rightMotorPower;
 double leftMotorPower;
 double turnSpeed = 30;
@@ -73,7 +20,6 @@ int motors [4] = {rightMotorPwmPin, rightMotorDirPin, leftMotorPwmPin, leftMotor
 
 void setup() 
 {
-  RemoteXY_Init (); 
   for (int i = 0; i < 5; i++){
     pinMode (motors[i], OUTPUT);
     }
@@ -82,19 +28,16 @@ void setup()
     pinMode (trigPinLeft, OUTPUT);
     pinMode (trigPinRight, OUTPUT);
     digitalWrite (motors[1], 0);
-    digitalWrite (motors[3], 0);
+    digitalWrite (motors[3], 1);
     Serial.begin (9600);
-
+    driveStraightSpeed = 40;
     // just initializing
 }
 
 void loop() 
 { 
-  RemoteXY_Handler ();
-  while (RemoteXY.switch_1){ // in case something goes wrong, we can always turn off the car from our phone
-    RemoteXY_Handler ();
     rightDistance = 90;
-    leftDistance = 80;
+    leftDistance = 90;
     analogWrite (motors[0], driveStraightSpeed);
     analogWrite (motors[2], driveStraightSpeed);
     if (rightDistance < 100 || leftDistance < 100){
@@ -107,15 +50,11 @@ void loop()
         turn (true);
         }
       else {
-    analogWrite (motors[0], 0);
-    analogWrite (motors[2], 0);
-        }
-    Serial.println (RemoteXY.switch_1);    
+driveStraightSpeed = 0;
+        } 
         // either stop or turn in order to be vertical to the wall
       } 
-    }
-    analogWrite (motors[0], 0);
-    analogWrite (motors[2], 0);
+    
 }
 void turn (bool directionToMove){
   int currentTime = millis();
@@ -126,7 +65,7 @@ void turn (bool directionToMove){
       findRightDistance();
       findLeftDistance();
       digitalWrite (motors[1], 0);
-      digitalWrite (motors[3], 1);
+      digitalWrite (motors[3], 0);
       }
     }
   if (!directionToMove){
@@ -134,7 +73,7 @@ void turn (bool directionToMove){
     findRightDistance();
     findLeftDistance();
     digitalWrite (motors[1], 1);
-    digitalWrite (motors[3], 0);
+    digitalWrite (motors[3], 1);
     }
     }
   }

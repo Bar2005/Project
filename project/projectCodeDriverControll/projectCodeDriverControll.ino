@@ -67,6 +67,10 @@ int leftMotorDirPin = 6;
 double rightMotorPower;
 double leftMotorPower;
 bool drive = true;
+bool encoderState;
+bool lastEncoderState;
+int encoderPin = 12;
+int encoderVal;
 double turnSpeed = 30;
 double driveStraightSpeed = 50;
 int motors [4] = {rightMotorPwmPin, rightMotorDirPin, leftMotorPwmPin, leftMotorDirPin}; // an array includes all the pins that connected to the motors
@@ -80,6 +84,7 @@ void setup()
   for (int i = 0; i < 5; i++){
     pinMode (motors[i], OUTPUT);
     }
+    pinMode (encoderPin, INPUT);
   Serial.begin (9600);
   
   // TODO you setup code
@@ -89,6 +94,11 @@ void setup()
 void loop() 
 { 
   RemoteXY_Handler (); 
+  bool encoderState = digitalRead (encoderPin);
+  if (encoderState == !lastEncoderState){encoderVal++;}
+  lastEncoderState = encoderState;
+  Serial.println ("encoderVal:");
+  Serial.println (encoderVal);
   if (RemoteXY.switch_1){
   RemoteXY_Handler (); 
   rightMotorPower = turnSpeed;
@@ -96,11 +106,11 @@ void loop()
     if (RemoteXY.pushSwitch_3){
     digitalWrite (motors[3], 1);
     digitalWrite (motors[1], 1);
-    Serial.println ("turn right");
+    //Serial.println ("turn right");
     } else if (RemoteXY.pushSwitch_1) { 
     digitalWrite (motors[1], 0);
     digitalWrite (motors[3], 0);
-    Serial.println ("turn left");
+    //Serial.println ("turn left");
     }  else {
     rightMotorPower = driveStraightSpeed;
     leftMotorPower = driveStraightSpeed;
@@ -108,16 +118,16 @@ void loop()
     if (RemoteXY.pushSwitch_4){
     digitalWrite (motors[3], 1);
     digitalWrite (motors[1], 0);
-    Serial.println("forward");  
+    //Serial.println("forward");  
     } else if (RemoteXY.pushSwitch_2){
     digitalWrite (motors[3], 0);
     digitalWrite (motors[1], 1);
-    Serial.println("backward");
+    //Serial.println("backward");
       } 
     if (!RemoteXY.pushSwitch_1 && !RemoteXY.pushSwitch_2 && !RemoteXY.pushSwitch_3 && !RemoteXY.pushSwitch_4){
   leftMotorPower = 0;
   rightMotorPower = 0;
-  Serial.println ("stop!!");
+  //Serial.println ("stop!!");
       }  
   // deciding which side every motor needs to move    
   analogWrite (motors[0], rightMotorPower);
@@ -127,6 +137,6 @@ void loop()
   } else {
   analogWrite (motors[0], 0);
   analogWrite (motors[2], 0);
-  Serial.println ("stop");
+  //Serial.println ("stop");
   }
 }
