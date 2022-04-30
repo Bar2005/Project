@@ -62,13 +62,13 @@ struct {
 
 int rightMotorPwmPin = 10;
 int rightMotorDirPin = 11;
-int leftMotorPwmPin =  12;
-int leftMotorDirPin = 13;
+int leftMotorPwmPin =  5;
+int leftMotorDirPin = 6;
 double rightMotorPower;
 double leftMotorPower;
 bool drive = true;
-double turnSpeed = 60;
-double driveStraightSpeed = 100;
+double turnSpeed = 30;
+double driveStraightSpeed = 50;
 int motors [4] = {rightMotorPwmPin, rightMotorDirPin, leftMotorPwmPin, leftMotorDirPin}; // an array includes all the pins that connected to the motors
 
 
@@ -94,23 +94,23 @@ void loop()
   rightMotorPower = turnSpeed;
   leftMotorPower = turnSpeed;
     if (RemoteXY.pushSwitch_3){
-    digitalWrite (motors[3], 0);
+    digitalWrite (motors[3], 1);
     digitalWrite (motors[1], 1);
     Serial.println ("turn right");
     } else if (RemoteXY.pushSwitch_1) { 
     digitalWrite (motors[1], 0);
-    digitalWrite (motors[3], 1);
+    digitalWrite (motors[3], 0);
     Serial.println ("turn left");
     }  else {
     rightMotorPower = driveStraightSpeed;
     leftMotorPower = driveStraightSpeed;
     } 
     if (RemoteXY.pushSwitch_4){
-    digitalWrite (motors[3], 0);
+    digitalWrite (motors[3], 1);
     digitalWrite (motors[1], 0);
     Serial.println("forward");  
     } else if (RemoteXY.pushSwitch_2){
-    digitalWrite (motors[3], 1);
+    digitalWrite (motors[3], 0);
     digitalWrite (motors[1], 1);
     Serial.println("backward");
       } 
