@@ -2,14 +2,14 @@
 
 long durationRight; // variable for the duration of right sound wave travel
 long durationLeft; // variable for the duration of left sound wave travel
-int trigPinRight = 1;
-int echoPinRight = 2;
-int trigPinLeft = 3;
-int echoPinLeft = 4;
+int trigPinRight = 7;
+int echoPinRight = 4;
+int trigPinLeft = 9;
+int echoPinLeft = 3;
 int rightMotorPwmPin = 10;
 int rightMotorDirPin = 11;
-int leftMotorPwmPin =  5;
-int leftMotorDirPin = 6;
+int leftMotorPwmPin =  6;
+int leftMotorDirPin = 5;
 double rightMotorPower;
 double leftMotorPower;
 double turnSpeed = 30;
@@ -36,10 +36,10 @@ void setup()
 
 void loop() 
 { 
-    rightDistance = 90;
-    leftDistance = 90;
+      findRightDistance();
     analogWrite (motors[0], driveStraightSpeed);
     analogWrite (motors[2], driveStraightSpeed);
+    Serial.println (rightDistance);
     if (rightDistance < 100 || leftDistance < 100){
       if (rightDistance > leftDistance){ 
         Serial.println ("left");
@@ -63,7 +63,6 @@ void turn (bool directionToMove){
   if (directionToMove){
     while (leftDistance > rightDistance){
       findRightDistance();
-      findLeftDistance();
       digitalWrite (motors[1], 0);
       digitalWrite (motors[3], 0);
       }
@@ -71,14 +70,12 @@ void turn (bool directionToMove){
   if (!directionToMove){
     while(leftDistance < rightDistance){
     findRightDistance();
-    findLeftDistance();
     digitalWrite (motors[1], 1);
     digitalWrite (motors[3], 1);
     }
     }
   }
   void findRightDistance (){
-    // Clears the trigPin condition
   digitalWrite(trigPinRight, LOW);
   delayMicroseconds(2);
   // Sets the trigPin HIGH (ACTIVE) for 10 microseconds
@@ -86,20 +83,7 @@ void turn (bool directionToMove){
   delayMicroseconds(10);
   digitalWrite(trigPinRight, LOW);
   // Reads the echoPin, returns the sound wave travel time in microseconds
-  durationRight = pulseIn(echoPinRight, HIGH);
+durationRight = pulseIn(echoPinRight, HIGH);
   // Calculating the distance
-  rightDistance = durationRight* 0.034 / 2;
-  }
-  void findLeftDistance (){
-    // Clears the trigPin condition
-  digitalWrite(trigPinLeft, LOW);
-  delayMicroseconds(2);
-  // Sets the trigPin HIGH (ACTIVE) for 10 microseconds
-  digitalWrite(trigPinLeft, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPinLeft, LOW);
-  // Reads the echoPin, returns the sound wave travel time in microseconds
-  durationLeft = pulseIn(echoPinLeft, HIGH);
-  // Calculating the distance
-  leftDistance = durationLeft * 0.034 / 2;
+  rightDistance = durationRight * 0.034 / 2; // Speed of sound wave divided by 2 (go and back)
   }
